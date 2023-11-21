@@ -1,66 +1,61 @@
-/**
- * main.h
- * Created on Aug, 23th 2023
- * Author: Tiago Barros
- * Based on "From C to C++ course - 2002"
-*/
-
-#include <string.h>
+#include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <time.h>
 
 #include "screen.h"
 #include "keyboard.h"
 #include "timer.h"
 
+#define MAXY 25
+#define MINX 0
+#define MAXX 80
+#define DARKGRAY 8
+#define YELLOW 14
+#define LIGHTMAGENTA 13
+#define LIGHTGREEN 10
+
 struct Objeto {
-    char nome[50];
     double x;
     double y;
     double incX;
     double incY;
 };
 
-float obterIncrementoAleatorio() {
-    // Gera um número aleatório para determinar o incremento
-    srand(time(0));
-    float aleatorio = rand() % 120 + 1;
+void desenharAyla(double x, double y, int pontos) {
+    y -= 0;
+    screenSetColor(YELLOW, DARKGRAY);
 
-    float incremento;
-
-    // Calcula o incremento com base no valor aleatório gerado
-    if (aleatorio >= 10)
-        incremento = aleatorio / 1000;
-    else
-        incremento = aleatorio / 100;
-
-    // Define a direção do incremento com base no valor aleatório
-    if (aleatorio <= 50)
-        return incremento;
-    else
-        return -incremento;
-}
-
-void imprimirObjeto(double proximoX, double proximoY, char* objeto, int cor) {
-    // Define a cor e posição na tela para imprimir um objeto
-    screenSetColor(cor, DARKGRAY);
-    screenGotoxy(proximoX, proximoY);
-    printf("%s", objeto);
+    if (pontos >= 7) {
+        // DESENHO 1
+        screenGotoxy(x, y);     printf("          /\\--/\\ ");
+        screenGotoxy(x, y + 1); printf("          ( ● ● ) ");
+        screenGotoxy(x, y + 2); printf("           ((^))  ");
+        screenGotoxy(x, y + 3); printf("          ( ayla )");
+        screenGotoxy(x, y + 4); printf("            U  U ");
+    } else {
+        // DESENHO 2
+        screenGotoxy(x, y);     printf("          /\\--/\\ ");
+        screenGotoxy(x, y + 1); printf("          ( ● ● ) ");
+        screenGotoxy(x, y + 2); printf("           ((^))  ");
+        screenGotoxy(x, y + 3); printf("         (  ayla  )");
+        screenGotoxy(x, y + 4); printf("            U  U ");
+    }
 }
 
 void limparObjetos() {
-    // Limpa os objetos na tela para atualização
-    for (int i = 9; i < MAXY; i++) {
+    // Limpa objetos na tela para atualização
+    for (int i = 0; i < MAXY; i++) {
         screenGotoxy(MINX + 1, i);
-        for (int j = 0; j < 77; j++) {
+        for (int j = 0; j < MAXX - 2; j++) {
             printf(" ");
         }
     }
 }
 
 void imprimirPontuacao(int pontos) {
-    // Imprime a pontuação na tela
-    screenSetColor(YELLOW, DARKGRAY);
+    // Imprime a pontuação na tela com a cor LIGHTMAGENTA
+    screenSetColor(LIGHTMAGENTA, DARKGRAY);
     screenGotoxy(35, 4);
     printf("PONTUAÇÃO: %d ", pontos);
 }
@@ -70,10 +65,10 @@ int main() {
     int pontos = 0, margemX = 5, margemY = 0, colisao = 0;
     double gravidade = 0.22;
 
-    // Inicialização dos objetos do jogo
+    // Inicialização do objeto do jogo
     struct Objeto ayla;
     ayla.x = 20.0;
-    ayla.y = MAXY - 1;
+    ayla.y = MAXY - 5; // Ajustado para o desenho do personagem
     ayla.incY = 0;
 
     struct Objeto obstaculoInferior;
@@ -92,92 +87,86 @@ int main() {
     timerInit(50);
     screenUpdate();
 
-    while (tecla != 10) // Enter
-    {
-        if (keyhit() && ayla.y >= MAXY - 3) {
+    while (tecla != 10) { // Enter
+        if (keyhit()) {
             tecla = readch();
-            imprimirPontuacao(pontos);
-            screenUpdate();
+            if (tecla == 32 && ayla.y >= MAXY - 6) ayla.incY = -2.0; // Lógica do pulo
         }
 
-        // Atualizar estado do jogo
-        if (timerTimeOver() == 1) {
+        if (colisao) {
+            screenSetColor(LIGHTMAGENTA, DARKGRAY);
+            screenGotoxy(35, 12); printf("FIM DE JOGO");
+            screenUpdate();
+            while (tecla != 'r') {
+                if (keyhit()) {
+                    tecla = readch();
+                }
+            }
+            // Condições de reinício após pressionar 'r'
+            colisao = 0;
+            obstaculoInferior.incX = -1.0;
+            obstaculoSuperior.incX = -1.0;
+            ayla.incY = 0;
+            gravidade = 0.22;
+            obstaculoInferior.x = 60;
+            obstaculoSuperior.x = 60;
+            ayla.y = MAXY - 5;
+            pontos = 0;
+            screenClear();
+            screenUpdate();
+            continue; // Continua para reiniciar o laço do jogo
+        }
 
-            // Limpar tela
+        // Atualização do estado do jogo
+        if (timerTimeOver()) {
+            // Limpa a tela
             limparObjetos();
 
             // Movimento dos objetos
-            ayla.y = ayla.y + ayla.incY;
-            obstaculoInferior.x = obstaculoInferior.x + obstaculoInferior.incX;
-            obstaculoSuperior.x = obstaculoSuperior.x + obstaculoSuperior.incX;
+            ayla.y += ayla.incY;
+            obstaculoInferior.x += obstaculoInferior.incX;
+            obstaculoSuperior.x += obstaculoSuperior.incX;
 
             // Gravidade
-            ayla.incY = ayla.incY + gravidade;
+            if (ayla.y < MAXY - 5) ayla.incY += gravidade; // Aplica gravidade se acima do chão
+            else ayla.incY = 0; // Para de cair se estiver no chão
 
-            // Pulo da Ayla
-            if (tecla == 32 && ayla.y >= MAXY - 1) ayla.incY = -2.0, tecla = 0;
+            // Verificação do chão
+            if (ayla.y > MAXY - 5) ayla.y = MAXY - 5; // Mantém Ayla no chão
 
-            // Chão
-            if (ayla.y >= MAXY - 1) ayla.y = MAXY - 1;
-            if (obstaculoInferior.y >= MAXY - 1) obstaculoInferior.y = MAXY - 1;
-            if (obstaculoSuperior.y >= MAXY - 2) obstaculoSuperior.y = MAXY - 2;
+            // Loop do obstáculo
+            if (obstaculoInferior.x <= MINX + 1) {
+                obstaculoInferior.x = MAXX - 8;
+                pontos++;
+            }
+            if (obstaculoSuperior.x <= MINX + 1) obstaculoSuperior.x = MAXX - 8;
 
-            // Loop de obstáculos
-            float incrementoAleatorio = obterIncrementoAleatorio();
-            if (obstaculoInferior.x <= MINX + 1) obstaculoInferior.x = MAXX - 8, pontos++, obstaculoInferior.incX += incrementoAleatorio;
-            if (obstaculoSuperior.x <= MINX + 1) obstaculoSuperior.x = MAXX - 8, obstaculoSuperior.incX += incrementoAleatorio;
-
-            // Colisões
-            if ((abs((int)ayla.x - (int)obstaculoInferior.x) <= margemX && abs((int)ayla.y - (int)obstaculoInferior.y) <= margemY) || (abs((int)ayla.x - (int)obstaculoSuperior.x) <= margemX && abs((int)ayla.y - (int)obstaculoSuperior.y) <= margemY)) {
+            // Verificação de colisão
+            if ((abs((int)ayla.x - (int)obstaculoInferior.x) <= margemX && abs((int)ayla.y - (int)obstaculoInferior.y) <= margemY) || 
+                (abs((int)ayla.x - (int)obstaculoSuperior.x) <= margemX && abs((int)ayla.y - (int)obstaculoSuperior.y) <= margemY)) {
                 colisao = 1;
-
                 obstaculoInferior.incX = 0;
                 obstaculoSuperior.incX = 0;
-
                 ayla.incY = 0;
                 gravidade = 0;
-
-                if (abs((int)ayla.y - (int)obstaculoSuperior.y) <= margemY) ayla.y = obstaculoSuperior.y - 1;
-                else if (abs((int)ayla.x - (int)obstaculoInferior.x) <= margemX) ayla.x = obstaculoInferior.x - 5;
+                continue; // Pula para o início do laço para tratar a colisão
             }
 
-            // GAME OVER
-            if (colisao == 1) {
-                imprimirObjeto(35, 12, "GAME OVER", 1);
-            }
-
-            // Recomeçar
-            if (obstaculoInferior.incX == 0 && tecla == 114) {
-                colisao = 0;
-
-                obstaculoInferior.incX = -1.0;
-                obstaculoSuperior.incX = -1.0;
-
-                ayla.incY = 0;
-                gravidade = 0.2;
-
-                obstaculoInferior.x = 60;
-                obstaculoSuperior.x = 60;
-
-                ayla.y = MAXY - 1;
-
-                pontos = 0;
-                tecla = 0;
-            }
-
-            // Impressões
+            // Imprime a pontuação e Ayla
             imprimirPontuacao(pontos);
+            desenharAyla(ayla.x, ayla.y, pontos);
 
-            imprimirObjeto(ayla.x, ayla.y, "Ayla", 6);
-
-            imprimirObjeto(obstaculoInferior.x, obstaculoInferior.y, "|||", 2);
-            imprimirObjeto(obstaculoSuperior.x, obstaculoSuperior.y, "|||", 2);
+            // Imprime obstáculos com a cor LIGHTGREEN
+            screenSetColor(LIGHTGREEN, DARKGRAY);
+            screenGotoxy(obstaculoInferior.x, obstaculoInferior.y); printf("|||");
+            screenGotoxy(obstaculoSuperior.x, obstaculoSuperior.y); printf("|||");
 
             // Atualização da tela
             screenUpdate();
         }
     }
 
+    // Limpeza
     keyboardDestroy();
     screenDestroy();
     timerDestroy();
