@@ -73,7 +73,7 @@ void desenharAyla(double x, double y, int pontos) {
   y -= 0;
   screenSetColor(YELLOW, YELLOW);
 
-  if (pontos >= 7) {
+  if (pontos >= 14) {
     screenGotoxy(x, y);
     printf("          /\\---/\\ ");
     screenGotoxy(x, y + 1);
@@ -81,9 +81,21 @@ void desenharAyla(double x, double y, int pontos) {
     screenGotoxy(x, y + 2);
     printf("           ((^))  ");
     screenGotoxy(x, y + 3);
-    printf("          ( ayla )");
+    printf("           (ayla)");
     screenGotoxy(x, y + 4);
-    printf("            U  U ");
+    printf("            U  U ");   
+  }
+  else if (pontos >= 7){
+    screenGotoxy(x, y);
+      printf("          /\\---/\\ ");
+      screenGotoxy(x, y + 1);
+      printf("          ( ● ● ) ");
+      screenGotoxy(x, y + 2);
+      printf("           ((^))  ");
+      screenGotoxy(x, y + 3);
+      printf("          ( ayla )");
+      screenGotoxy(x, y + 4);
+      printf("            U  U ");
   } else {
     screenGotoxy(x, y);
     printf("          /\\---/\\ ");
