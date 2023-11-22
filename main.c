@@ -81,7 +81,7 @@ void desenharAyla(double x, double y, int pontos) {
     screenGotoxy(x, y + 2);
     printf("           ((^))  ");
     screenGotoxy(x, y + 3);
-    printf("           (ayla)");
+    printf("           (   )");
     screenGotoxy(x, y + 4);
     printf("            U  U ");   
   }
@@ -93,7 +93,7 @@ void desenharAyla(double x, double y, int pontos) {
       screenGotoxy(x, y + 2);
       printf("           ((^))  ");
       screenGotoxy(x, y + 3);
-      printf("          ( ayla )");
+      printf("           (    )");
       screenGotoxy(x, y + 4);
       printf("            U  U ");
   } else {
@@ -104,7 +104,7 @@ void desenharAyla(double x, double y, int pontos) {
     screenGotoxy(x, y + 2);
     printf("           ((^))  ");
     screenGotoxy(x, y + 3);
-    printf("         (  ayla  )");
+    printf("          (      )");
     screenGotoxy(x, y + 4);
     printf("            U  U ");
   }
@@ -128,7 +128,7 @@ void imprimirPontuacao(int pontos, lista *head) {
 
 int main() {
   static int tecla = 0;
-  int pontos = 0, margemX = 5, margemY = 0, colisao = 0;
+  int pontos = 0, margemX = 10, margemY = 3, colisao = 0;
   double gravidade = 0.23;
   lista *head = NULL; // Lista para o high score
 
@@ -164,6 +164,7 @@ int main() {
       screenSetColor(LIGHTMAGENTA, DARKGRAY);
       screenGotoxy(35, 12);
       printf("GAME OVER");
+      getchar();
       screenUpdate();
       break; // Encerra o loop principal e termina o jogo
     }
