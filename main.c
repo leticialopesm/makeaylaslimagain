@@ -34,7 +34,6 @@ typedef struct node {
   struct node *next;
 } lista;
 
-// Função para adicionar um nó de forma descendente
 void addnode(lista **head, int var) {
   lista *n = *head;
   lista *novo = (lista *)malloc(sizeof(lista));
@@ -61,13 +60,11 @@ void addnode(lista **head, int var) {
   }
 }
 
-// Função para imprimir a pontuação máxima
 void printHighScore(lista *head, int score) {
   screenSetColor(YELLOW, DARKGRAY);
   screenGotoxy(30, 6);
-  printf("PONTUAÇÃO MÁXIMA: "); // Texto alterado aqui
+  printf("PONTUAÇÃO MÁXIMA: "); 
 
-  // Ajusta a posição do cursor para depois dos dois pontos
   screenGotoxy(30 + strlen("PONTUAÇÃO MÁXIMA: "), 6);
 
   if (head == NULL || score > head->pontmax)
@@ -137,7 +134,7 @@ int main() {
   static int tecla = 0;
   int pontos = 0, margemX = 5, margemY = 0, colisao = 0;
   double gravidade = 0.23;
-  lista *head = NULL; // Lista para o high score
+  lista *head = NULL;
 
   struct Objeto ayla;
   ayla.x = 20.0;
@@ -167,13 +164,13 @@ int main() {
     }
 
     if (colisao) {
-      addnode(&head, pontos); // Atualiza a lista de high score
+      addnode(&head, pontos);
       screenSetColor(LIGHTMAGENTA, DARKGRAY);
       screenGotoxy(35, 12);
       printf("GAME OVER");
       getchar();
       screenUpdate();
-      break; // Encerra o loop principal e termina o jogo
+      break;
     }
 
     if (timerTimeOver()) {
