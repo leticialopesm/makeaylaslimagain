@@ -128,7 +128,7 @@ void imprimirPontuacao(int pontos, lista *head) {
 
 int main() {
   static int tecla = 0;
-  int pontos = 0, margemX = 10, margemY = 3, colisao = 0;
+  int pontos = 0, margemX = 5, margemY = 0, colisao = 0;
   double gravidade = 0.23;
   lista *head = NULL; // Lista para o high score
 
